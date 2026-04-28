@@ -783,7 +783,7 @@
     </div>
 
     <script>
-        const API_BASE = `${window.location.protocol}
+        const API_BASE = `${window.location.protocol}//${window.location.hostname}:5000/api`
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
