@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import sqlite3
 import datetime
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../frontend')
 CORS(app)
 
 DB_FILE = "volunteer.db"
@@ -197,6 +198,20 @@ def handle_messages():
     msgs = [dict(row) for row in conn.execute("SELECT * FROM messages ORDER BY id DESC").fetchall()]
     conn.close()
     return jsonify(msgs), 200
+
+# ── Health Check ─────────────────────────────────────────────
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy", "message": "System is running"}), 200
+
+# ── Serve Frontend ───────────────────────────────────────────
+@app.route('/')
+def serve_frontend():
+    return send_from_directory('../frontend', 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    return send_from_directory('../frontend', path)
 
 if __name__ == '__main__':
     init_db()
