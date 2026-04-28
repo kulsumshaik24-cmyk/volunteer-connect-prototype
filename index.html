@@ -1,0 +1,1140 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Resource Allocation - Volunteer System</title>
+    <style>
+        :root {
+            --primary-blue: #4a90e2;
+            --dark-blue: #2c5f9e;
+            --light-bg: #f0f4f8;
+            --white: #ffffff;
+            --text-main: #333;
+            --error-red: #ff4d4d;
+            --success-green: #2ecc71;
+            --sidebar-width: 260px;
+            --warning-orange: #e67e22;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR NAVIGATION */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #1e3a5f;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.1rem;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .sidebar nav ul li {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar nav ul li:hover {
+            background-color: rgba(74, 144, 226, 0.3);
+            border-left-color: var(--primary-blue);
+        }
+
+        .sidebar nav ul li.active {
+            background-color: var(--primary-blue);
+            border-left-color: var(--white);
+            font-weight: bold;
+        }
+
+        /* MAIN CONTENT AREA */
+        .main-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page {
+            display: none;
+            padding: 40px;
+            flex: 1;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            background: linear-gradient(180deg, #4a90e2 0%, #2c5f9e 100%);
+            color: white;
+            text-align: center;
+            padding: 80px 20px;
+            border-radius: 0 0 50px 50px;
+        }
+
+        .hero img {
+            width: 80px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin: 10px 0;
+        }
+
+        .hero h3 {
+            font-size: 1.3rem;
+            opacity: 0.9;
+        }
+
+        .hero p {
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 15px auto;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .hero-buttons {
+            margin-top: 30px;
+        }
+
+        /* CARDS & GRIDS */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: var(--dark-blue);
+            margin-bottom: 15px;
+        }
+
+        .card h2 {
+            margin: 15px 0;
+            font-size: 2.5rem;
+        }
+
+        .card ul {
+            text-align: left;
+            margin-left: 20px;
+        }
+
+        .card li {
+            margin: 8px 0;
+        }
+
+        .info-box {
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .problem-box {
+            background: #fff5f5;
+            border: 1px solid #ffcccc;
+            color: #c53030;
+        }
+
+        .solution-box {
+            background: #f0fff4;
+            border: 1px solid #c6f6d5;
+            color: #276749;
+        }
+
+        /* TABLES */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--primary-blue);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* BADGES */
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .bg-food {
+            background: #ffeebb;
+            color: #856404;
+        }
+
+        .bg-medical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .bg-education {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .bg-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .bg-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .bg-urgent {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .bg-other {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        /* BUTTONS */
+        .btn-main {
+            background: var(--white);
+            color: var(--primary-blue);
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .btn-main:hover {
+            background: var(--primary-blue);
+            color: var(--white);
+            transform: scale(1.05);
+        }
+
+        .btn-submit {
+            background: var(--primary-blue);
+            color: white;
+            padding: 12px 40px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .btn-submit:hover {
+            background: var(--dark-blue);
+        }
+
+        .btn-small {
+            background: var(--primary-blue);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+
+        .btn-small:hover {
+            background: var(--dark-blue);
+        }
+
+        /* FORM */
+        .reg-form {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--dark-blue);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        h1 {
+            color: var(--dark-blue);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: var(--dark-blue);
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        .message-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .message-box .sender {
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        .message-box .timestamp {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center;
+            border-top: 4px solid var(--primary-blue);
+        }
+
+        .stat-card h3 {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            body {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .main-container {
+                width: 100%;
+            }
+
+            .page {
+                padding: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>🤝 Volunteer Connect</h3>
+        </div>
+        <nav>
+            <ul>
+                <li onclick="showPage('home')" id="nav-home" class="active">🏠 Home</li>
+                <li onclick="showPage('dashboard')" id="nav-dashboard">📊 Dashboard</li>
+                <li onclick="showPage('register')" id="nav-register">📝 Register</li>
+                <li onclick="showPage('volunteers')" id="nav-volunteers">👥 Volunteers</li>
+                <li onclick="showPage('needs')" id="nav-needs">📍 Needs</li>
+                <li onclick="showPage('match')" id="nav-match">🔗 Matching</li>
+                <li onclick="showPage('assignments')" id="nav-assignments">📋 Assignments</li>
+                <li onclick="showPage('messages')" id="nav-messages">💬 Messages</li>
+                <li onclick="showPage('reports')" id="nav-reports">📈 Reports</li>
+                <li onclick="showPage('settings')" id="nav-settings">⚙️ Settings</li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-container">
+        <!-- HOME PAGE -->
+        <div id="home" class="page active">
+            <div class="hero">
+                <img src="https://cdn-icons-png.flaticon.com/512/2099/2099192.png" alt="Globe">
+                <h1>Smart Resource Allocation</h1>
+                <h3>Data-Driven Volunteer System</h3>
+                <p>"Right resources, right place, at the right time."</p>
+                <p>Our system helps NGOs analyze community data and allocate volunteers and resources efficiently to areas that need them the most.</p>
+                <div class="hero-buttons">
+                    <button class="btn-main" onclick="showPage('register')">🙋 Register as Volunteer</button>
+                    <button class="btn-main" onclick="showPage('dashboard')">🗺️ View Dashboard</button>
+                </div>
+            </div>
+
+            <div style="padding: 40px;">
+                <div class="grid-3">
+                    <div class="card problem-box">
+                        <h3>🚨 The Problem</h3>
+                        <ul>
+                            <li>Uneven resource distribution</li>
+                            <li>Manual decision-making delays</li>
+                            <li>Poor emergency response</li>
+                        </ul>
+                    </div>
+                    <div class="card solution-box">
+                        <h3>✅ Our Solution</h3>
+                        <ul>
+                            <li>Data-driven allocation</li>
+                            <li>Real-time matching</li>
+                            <li>Instant deployment</li>
+                        </ul>
+                    </div>
+                    <div class="card" style="background: #f0f8ff; border-left: 4px solid var(--primary-blue);">
+                        <h3>⚡ Key Features</h3>
+                        <ul>
+                            <li>Real-time tracking</li>
+                            <li>Smart analytics</li>
+                            <li>Quick registration</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard" class="page">
+            <h1>📊 System Dashboard</h1>
+            
+            <div class="grid-4" style="margin-bottom: 40px;">
+                <div class="stat-card">
+                    <h3>Total Volunteers</h3>
+                    <div class="value" id="stat-vol">0</div>
+                </div>
+                <div class="stat-card" style="border-top-color: var(--warning-orange);">
+                    <h3>Open Needs</h3>
+                    <div class="value" id="stat-needs" style="color: var(--warning-orange);">0</div>
+                </div>
+                <div class="stat-card" style="border-top-color: var(--success-green);">
+                    <h3>Matched Assignments</h3>
+                    <div class="value" id="stat-match" style="color: var(--success-green);">0</div>
+                </div>
+                <div class="stat-card" style="border-top-color: #9b59b6;">
+                    <h3>Completed Tasks</h3>
+                    <div class="value" id="stat-complete" style="color: #9b59b6;">0</div>
+                </div>
+            </div>
+
+            <h2>📍 Community Needs</h2>
+            <div class="table-container">
+                <table id="needs-table">
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Category</th>
+                            <th>Urgency</th>
+                            <th>Posted</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <h2>📋 Active Assignments</h2>
+            <div class="table-container">
+                <table id="assignments-table">
+                    <thead>
+                        <tr>
+                            <th>Volunteer</th>
+                            <th>Task</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REGISTER PAGE -->
+        <div id="register" class="page">
+            <div class="reg-form">
+                <h2>Volunteer Registration Form</h2>
+                <div id="reg-alert"></div>
+                <form onsubmit="submitRegistration(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="reg-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address *</label>
+                            <input type="email" id="reg-email" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" id="reg-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Location (City/Village) *</label>
+                            <input type="text" id="reg-loc" placeholder="Enter your city or village" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Primary Skill *</label>
+                            <select id="reg-skill" required>
+                                <option value="">Select a skill</option>
+                                <option value="Food">Food Distribution</option>
+                                <option value="Medical">Medical Support</option>
+                                <option value="Education">Education/Teaching</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Availability *</label>
+                            <select id="reg-availability" required>
+                                <option value="">Select availability</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Weekends">Weekends Only</option>
+                                <option value="Flexible">Flexible</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">✅ Submit Registration</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- VOLUNTEERS PAGE -->
+        <div id="volunteers" class="page">
+            <h1>👥 Registered Volunteers</h1>
+            <p style="margin-bottom: 20px; color: #666;">View all volunteers in the system:</p>
+            <div class="table-container">
+                <table id="volunteers-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Skills</th>
+                            <th>Location</th>
+                            <th>Availability</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- COMMUNITY NEEDS PAGE -->
+        <div id="needs" class="page">
+            <h1>📍 Community Needs</h1>
+            <p style="margin-bottom: 30px; color: #666;">Active community needs requiring volunteer support:</p>
+            <div class="grid-3" id="needs-cards"></div>
+        </div>
+
+        <!-- MATCH VOLUNTEERS PAGE -->
+        <div id="match" class="page">
+            <h1>🔗 Volunteer-Need Matching</h1>
+            <div class="reg-form">
+                <p style="margin-bottom: 30px; color: #666;">View intelligent volunteer-to-need matching results:</p>
+                <div id="match-results"></div>
+            </div>
+        </div>
+
+        <!-- ASSIGNMENTS PAGE -->
+        <div id="assignments" class="page">
+            <h1>📋 Volunteer Assignments</h1>
+            <div class="table-container">
+                <table id="full-assignments-table">
+                    <thead>
+                        <tr>
+                            <th>Assignment ID</th>
+                            <th>Volunteer</th>
+                            <th>Task</th>
+                            <th>Status</th>
+                            <th>Assigned Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MESSAGES PAGE -->
+        <div id="messages" class="page">
+            <h1>💬 Messages & Notifications</h1>
+            <div class="reg-form">
+                <h3 style="margin-bottom: 20px;">Post a Message</h3>
+                <form onsubmit="submitMessage(event)">
+                    <div class="form-group">
+                        <label>Your Name *</label>
+                        <input type="text" id="msg-sender" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Message *</label>
+                        <textarea id="msg-content" placeholder="Write your message..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">📤 Send Message</button>
+                </form>
+            </div>
+
+            <h2>📨 Recent Messages</h2>
+            <div id="messages-list"></div>
+        </div>
+
+        <!-- REPORTS PAGE -->
+        <div id="reports" class="page">
+            <h1>📈 System Reports & Analytics</h1>
+            
+            <div class="grid-3" style="margin-bottom: 40px;">
+                <div class="card">
+                    <h3>📊 Volunteer Base</h3>
+                    <p id="report-vol-dist" style="font-size: 1.1rem; margin: 15px 0; color: var(--primary-blue); font-weight: bold;">Loading...</p>
+                </div>
+                <div class="card">
+                    <h3>🎯 Task Completion</h3>
+                    <p id="report-completion" style="font-size: 1.1rem; margin: 15px 0; color: var(--success-green); font-weight: bold;">Loading...</p>
+                </div>
+                <div class="card">
+                    <h3>🚨 Active Needs</h3>
+                    <p id="report-urgent" style="font-size: 1.1rem; margin: 15px 0; color: var(--warning-orange); font-weight: bold;">Loading...</p>
+                </div>
+            </div>
+
+            <h2>📊 Detailed Statistics</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-stats">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SETTINGS PAGE -->
+        <div id="settings" class="page">
+            <h1>⚙️ System Settings</h1>
+            <div class="reg-form">
+                <h3>System Configuration</h3>
+                <div class="form-group">
+                    <label>API Endpoint</label>
+                    <input type="text" value="http://localhost:5000/api" disabled style="background: #f5f5f5;">
+                </div>
+                <div class="form-group">
+                    <label>System Status</label>
+                    <input type="text" id="system-status" value="Checking..." disabled style="background: #f5f5f5;">
+                </div>
+                <button class="btn-submit" onclick="checkHealth()">🔄 Check System Health</button>
+
+                <h3 style="margin-top: 30px;">Data Management</h3>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">⚠️ Backup your data before clearing.</p>
+                <button class="btn-submit" style="background: #e67e22; margin-top: 0;" onclick="clearAllData()">🗑️ Clear All Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:5000/api";
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sidebar nav ul li').forEach(li => li.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            document.getElementById('nav-' + pageId).classList.add('active');
+
+            if (pageId === 'dashboard') loadDashboard();
+            if (pageId === 'volunteers') loadVolunteers();
+            if (pageId === 'needs') loadNeeds();
+            if (pageId === 'match') loadMatchResults();
+            if (pageId === 'assignments') loadFullAssignments();
+            if (pageId === 'messages') loadMessages();
+            if (pageId === 'reports') loadReports();
+        }
+
+        async function loadDashboard() {
+            try {
+                const sRes = await fetch(`${API_BASE}/stats`);
+                const s = await sRes.json();
+                document.getElementById('stat-vol').innerText = s.totalVolunteers;
+                document.getElementById('stat-needs').innerText = s.totalNeeds;
+                document.getElementById('stat-match').innerText = s.matchedAssignments;
+                document.getElementById('stat-complete').innerText = s.completedTasks;
+
+                const nRes = await fetch(`${API_BASE}/needs`);
+                const needs = await nRes.json();
+                const tbody = document.querySelector('#needs-table tbody');
+                tbody.innerHTML = '';
+                needs.forEach(n => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><b>${n.location}</b></td>
+                            <td><span class="badge bg-${n.category.toLowerCase()}">${n.category}</span></td>
+                            <td><span class="badge ${n.urgency === 'High' ? 'bg-urgent' : ''}">${n.urgency}</span></td>
+                            <td>${n.posted_on}</td>
+                            <td><span class="badge bg-pending">Pending</span></td>
+                        </tr>
+                    `;
+                });
+
+                const aRes = await fetch(`${API_BASE}/assignments`);
+                const assignments = await aRes.json();
+                const atable = document.querySelector('#assignments-table tbody');
+                atable.innerHTML = '';
+                assignments.forEach(a => {
+                    atable.innerHTML += `
+                        <tr>
+                            <td>${a.volunteer}</td>
+                            <td>${a.task}</td>
+                            <td><span class="badge ${a.status === 'Completed' ? 'bg-completed' : 'bg-pending'}">${a.status}</span></td>
+                            <td><button class="btn-small" onclick="updateAssignmentStatus(${a.id}, '${a.status === 'Completed' ? 'Pending' : 'Completed'}')">Mark ${a.status === 'Completed' ? 'Pending' : 'Complete'}</button></td>
+                        </tr>
+                    `;
+                });
+            } catch (e) {
+                console.error("Error loading dashboard:", e);
+            }
+        }
+
+        async function loadVolunteers() {
+            try {
+                const vRes = await fetch(`${API_BASE}/volunteers`);
+                if (!vRes.ok) throw new Error('Failed to fetch');
+                const volunteers = await vRes.json();
+                const tbody = document.querySelector('#volunteers-table tbody');
+                tbody.innerHTML = '';
+                if (volunteers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">No volunteers registered yet</td></tr>';
+                    return;
+                }
+                volunteers.forEach(v => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${v.name}</td>
+                            <td>${v.email}</td>
+                            <td>${v.phone}</td>
+                            <td><span class="badge bg-${v.skills.toLowerCase()}">${v.skills}</span></td>
+                            <td>${v.location}</td>
+                            <td>${v.availability}</td>
+                        </tr>
+                    `;
+                });
+            } catch (e) {
+                console.error("Error loading volunteers:", e);
+                document.querySelector('#volunteers-table tbody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error loading data</td></tr>';
+            }
+        }
+
+        async function loadNeeds() {
+            try {
+                const nRes = await fetch(`${API_BASE}/needs`);
+                const needs = await nRes.json();
+                const container = document.getElementById('needs-cards');
+                container.innerHTML = '';
+                if (needs.length === 0) {
+                    container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999;">No community needs posted yet</p>';
+                    return;
+                }
+                needs.forEach(n => {
+                    container.innerHTML += `
+                        <div class="card">
+                            <h3>📍 ${n.category}</h3>
+                            <p><strong>Location:</strong> ${n.location}</p>
+                            <p><strong>Urgency:</strong> <span class="badge ${n.urgency === 'High' ? 'bg-urgent' : ''}">${n.urgency}</span></p>
+                            <p><strong>Posted:</strong> ${n.posted_on}</p>
+                            <p><strong>Description:</strong> ${n.description || 'N/A'}</p>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                console.error("Error loading needs:", e);
+            }
+        }
+
+        async function loadMatchResults() {
+            try {
+                const vRes = await fetch(`${API_BASE}/volunteers`);
+                const volunteers = await vRes.json();
+                const nRes = await fetch(`${API_BASE}/needs`);
+                const needs = await nRes.json();
+
+                const container = document.getElementById('match-results');
+                container.innerHTML = '';
+
+                if (needs.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No community needs to match with</p>';
+                    return;
+                }
+
+                needs.forEach(need => {
+                    const matched = volunteers.filter(v => v.skills.toLowerCase() === need.category.toLowerCase());
+                    container.innerHTML += `
+                        <div class="info-box solution-box" style="margin-bottom: 20px;">
+                            <h4>${need.category} in ${need.location}</h4>
+                            <p><strong>Urgency:</strong> ${need.urgency} | <strong>Posted:</strong> ${need.posted_on}</p>
+                            <p><strong>Matched Volunteers: ${matched.length}</strong></p>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                ${matched.length > 0 ? matched.map(v => `<li>${v.name} - ${v.location} (${v.availability})</li>`).join('') : '<li style="color: #999;">No matching volunteers available</li>'}
+                            </ul>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                console.error("Error loading matches:", e);
+            }
+        }
+
+        async function loadFullAssignments() {
+            try {
+                const aRes = await fetch(`${API_BASE}/assignments`);
+                const assignments = await aRes.json();
+                const tbody = document.querySelector('#full-assignments-table tbody');
+                tbody.innerHTML = '';
+                if (assignments.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">No assignments yet</td></tr>';
+                    return;
+                }
+                assignments.forEach(a => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>#${a.id}</td>
+                            <td>${a.volunteer}</td>
+                            <td>${a.task}</td>
+                            <td><span class="badge ${a.status === 'Completed' ? 'bg-completed' : 'bg-pending'}">${a.status}</span></td>
+                            <td>${new Date().toLocaleDateString()}</td>
+                            <td><button class="btn-small" onclick="updateAssignmentStatus(${a.id}, '${a.status === 'Completed' ? 'Pending' : 'Completed'}')">Update</button></td>
+                        </tr>
+                    `;
+                });
+            } catch (e) {
+                console.error("Error loading assignments:", e);
+            }
+        }
+
+        async function loadMessages() {
+            try {
+                const mRes = await fetch(`${API_BASE}/messages`);
+                if (!mRes.ok) throw new Error('Failed to fetch');
+                const messages = await mRes.json();
+                const container = document.getElementById('messages-list');
+                container.innerHTML = '';
+                if (messages.length === 0) {
+                    container.innerHTML = '<p style="color: #999; text-align: center;">No messages yet</p>';
+                    return;
+                }
+                messages.forEach(m => {
+                    container.innerHTML += `
+                        <div class="message-box">
+                            <div class="sender">📤 ${m.sender}</div>
+                            <div>${m.content}</div>
+                            <div class="timestamp">🕐 ${new Date(m.timestamp).toLocaleString()}</div>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                console.error("Error loading messages:", e);
+                document.getElementById('messages-list').innerHTML = '<p style="color: red;">Error loading messages</p>';
+            }
+        }
+
+        async function loadReports() {
+            try {
+                const sRes = await fetch(`${API_BASE}/stats`);
+                const s = await sRes.json();
+
+                document.getElementById('report-vol-dist').innerHTML = `<strong>${s.totalVolunteers}</strong> volunteers registered`;
+                document.getElementById('report-completion').innerHTML = `<strong>${s.completedTasks}</strong> tasks completed`;
+                document.getElementById('report-urgent').innerHTML = `<strong>${s.totalNeeds}</strong> active needs`;
+
+                const tbody = document.getElementById('report-stats');
+                tbody.innerHTML = `
+                    <tr>
+                        <td>Total Volunteers</td>
+                        <td><strong>${s.totalVolunteers}</strong></td>
+                        <td><span class="badge bg-completed">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Community Needs</td>
+                        <td><strong>${s.totalNeeds}</strong></td>
+                        <td><span class="badge bg-pending">Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td>Matched Assignments</td>
+                        <td><strong>${s.matchedAssignments}</strong></td>
+                        <td><span class="badge bg-completed">Complete</span></td>
+                    </tr>
+                    <tr>
+                        <td>Completed Tasks</td>
+                        <td><strong>${s.completedTasks}</strong></td>
+                        <td><span class="badge bg-completed">Done</span></td>
+                    </tr>
+                `;
+            } catch (e) {
+                console.error("Error loading reports:", e);
+            }
+        }
+
+        async function submitRegistration(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('reg-name').value,
+                email: document.getElementById('reg-email').value,
+                phone: document.getElementById('reg-phone').value,
+                skills: document.getElementById('reg-skill').value,
+                location: document.getElementById('reg-loc').value,
+                availability: document.getElementById('reg-availability').value
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/volunteers/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    showAlert('reg-alert', '✅ Registration Successful! Redirecting...', 'success');
+                    e.target.reset();
+                    setTimeout(() => showPage('dashboard'), 1500);
+                } else {
+                    showAlert('reg-alert', '❌ Registration failed. Please try again.', 'error');
+                }
+            } catch (e) {
+                showAlert('reg-alert', '❌ Error: ' + e.message, 'error');
+            }
+        }
+
+        async function submitMessage(e) {
+            e.preventDefault();
+            const data = {
+                sender: document.getElementById('msg-sender').value,
+                content: document.getElementById('msg-content').value,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    document.getElementById('msg-sender').value = '';
+                    document.getElementById('msg-content').value = '';
+                    alert('✅ Message sent successfully!');
+                    loadMessages();
+                } else {
+                    alert('❌ Failed to send message');
+                }
+            } catch (e) {
+                alert('❌ Error: ' + e.message);
+            }
+        }
+
+        async function updateAssignmentStatus(assignmentId, newStatus) {
+            try {
+                const res = await fetch(`${API_BASE}/assignments/${assignmentId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (res.ok) {
+                    alert('✅ Assignment updated!');
+                    loadDashboard();
+                    loadFullAssignments();
+                } else {
+                    alert('❌ Failed to update assignment');
+                }
+            } catch (e) {
+                alert('❌ Error: ' + e.message);
+            }
+        }
+
+        async function checkHealth() {
+            try {
+                const res = await fetch(`${API_BASE}/health`);
+                if (res.ok) {
+                    document.getElementById('system-status').value = '✅ System Healthy - All systems operational';
+                    alert('✅ System is running smoothly!');
+                } else {
+                    document.getElementById('system-status').value = '⚠️ System Warning - Some issues detected';
+                }
+            } catch (e) {
+                document.getElementById('system-status').value = '❌ Connection Failed - Cannot reach backend';
+                alert('❌ Cannot connect to backend. Make sure server is running on port 5000.');
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ WARNING: This will DELETE ALL data in the system!\n\nAre you absolutely sure?')) {
+                alert('Data clearing feature can be implemented in the backend. Contact your administrator.');
+            }
+        }
+
+        function showAlert(elementId, message, type) {
+            const alertBox = document.getElementById(elementId);
+            if (alertBox) {
+                alertBox.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+                setTimeout(() => alertBox.innerHTML = '', 5000);
+            }
+        }
+
+        // Load dashboard on page load
+        window.onload = () => {
+            loadDashboard();
+        };
+    </script>
+
+</body>
+</html>
